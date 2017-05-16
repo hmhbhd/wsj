@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=3eb01d2d207ec4f36945dbcb43024127"></script>
+    <script src="http://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+
+
+
+
+
+    <style>
+        input::-webkit-input-placeholder { /* WebKit browsers */
+            color: #e1f1ff;
+        }
+
+        input :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+            color: #e1f1ff;
+        }
+
+        input ::-moz-placeholder { /* Mozilla Firefox 19+ */
+            color: #e1f1ff;
+        }
+
+        input :-ms-input-placeholder { /* Internet Explorer 10+ */
+            color: #e1f1ff;
+        }
+
+        #container {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            top: 0;
+        }
+
+        .search {
+            position: absolute;
+            top: 40px;
+            left: 60px;
+            z-index: 1;
+            width: 350px;
+        }
+
+        .searchInput {
+            width: 100%;
+            background: #3d93fd;
+            /*padding-top: 20px;
+            padding-bottom: 10px;*/
+           padding:10px 0;
+           text-align:center;
+           color:#fff;
+        }
+
+        .row {
+            width: 80%;
+            margin: 0 auto;
+            height: 40px;
+            line-height: 40px;
+            background: #3587eb;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        label.label {
+            margin-left: 10px;
+            font-size: 15px;
+        }
+
+        .inputText {
+            background: none;
+            border: none;
+            color: #fff;
+            width: 80%;
+            height: 30px;
+            line-height: 32px;
+            outline: none;
+        }
+
+        .row.last {
+            background: none;
+            text-align: right;
+        }
+
+        .searchBtn {
+            width: 80px;
+            height: 35px;
+            color: #fff;
+            background: #559ffb;
+            box-shadow: 0 1px 1px 0 rgba(0,0,0,.21);
+            -webkit-box-shadow: 0 1px 1px 0 rgba(0,0,0,.21);
+            border: none;
+        }
+
+        #result {
+            background: #fff;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="search">
+        <!--<div class="searchInput">
+            <div class="row">
+                <label class="label">起</label>
+                <input class="inputText" id="start" placeholder="请输入起点" />
+            </div>
+            <div class="row">
+                <label class="label">终</label>
+                <input class="inputText" id="end" placeholder="请输入终点" />
+            </div>
+            <div class="row last">
+                <input type="button" value="搜索路线" class="searchBtn" />
+            </div>
+        </div>-->
+        <div class="searchInput">
+            距离：<span class="distance"></span>千米 运费：<span class="money"></span>元
+        </div>
+        <div id="result"></div>
+    </div>
+    <div id="container"></div>
+    <script>
+        //显示地图
+        var map = new AMap.Map('container', {
+            resizeEnable: true,
+            zoom: 12,
+            center: [126.643805, 45.758395]
+        });
+        //工具条、比例尺、定位、鹰眼、基本图层切换等常用的控件
+        AMap.plugin(['AMap.ToolBar', 'AMap.Scale', 'AMap.OverView'],
+    function () {
+        map.addControl(new AMap.ToolBar());
+
+        map.addControl(new AMap.Scale());
+
+        map.addControl(new AMap.OverView({ isOpen: true }));
+    });
+        //
+        function getQueryString(key) {
+            var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)");
+            var result = window.location.search.substr(1).match(reg);
+            return result ? decodeURIComponent(result[2]) : null;
+        }
+        var start = getQueryString("start");
+        var end = getQueryString("end");
+        //重新支付
+        $(document).ready(function () {
+          
+            AMap.service('AMap.Driving', function () {//回调函数
+                //实例化Driving
+                var driving = new AMap.Driving({
+                    map: map,
+                    panel: "result"
+                });
+                driving.search([{ keyword: start }, { keyword: end }], function (status, result) {
+                    var distance = ((result.routes[0].distance) / 1000).toFixed(2);
+                    $(".distance").text(distance);
+                    var mathDis = Math.round(distance);
+                    console.log(mathDis);
+                    var money = "";
+                    if (mathDis < 5) {
+                        money = 10;
+                    }
+                    else {
+                        money = (Math.ceil(mathDis - 5)) * 3 + 10;
+                    }
+                    $(".money").text(money);
+                });
+            })
+        })
+
+    </script>
+</body>
+</html>
